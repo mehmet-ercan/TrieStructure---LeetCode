@@ -1,71 +1,54 @@
-public class WordDictionary {
+class WordDictionary {
+    private WordDictionary[] children;
+    boolean isEndOfWord;
+
     public WordDictionary() {
-        root = new TrieNode();
+        children = new WordDictionary[26];
+        isEndOfWord = false;
     }
 
-    final int ALPHABET_SIZE = 26;
-    //index 26th = '.'
-
-    public class TrieNode {
-        TrieNode[] children = new TrieNode[ALPHABET_SIZE];
-        boolean isEndOfWord;
-
-        TrieNode() {
-            isEndOfWord = false;
-            for (int i = 0; i < ALPHABET_SIZE; i++)
-                children[i] = null;
-        }
-    }
-
-    public TrieNode root;
 
     public void addWord(String word) {
         int level;
         int length = word.length();
         int index;
 
-        TrieNode pCrawl = root;
+        WordDictionary letter = this;
 
         for (level = 0; level < length; level++) {
             index = word.charAt(level) - 'a';
 
-            if (pCrawl.children[index] == null)
-                pCrawl.children[index] = new TrieNode();
+            if (letter.children[index] == null)
+                letter.children[index] = new WordDictionary();
 
-            pCrawl = pCrawl.children[index];
+            letter = letter.children[index];
         }
 
-        // mark last node as leaf
-        pCrawl.isEndOfWord = true;
+        letter.isEndOfWord = true;
     }
 
     public boolean search(String word) {
-        int level;
-        int length = word.length();
-        int index;
+        WordDictionary temp = this;
 
-        TrieNode pCrawl = root;
-
-        for (level = 0; level < length; level++) {
-            index = word.charAt(level) - 'a';
+        for (int level = 0; level < word.length(); level++) {
+            int index = word.charAt(level) - 'a';
 
             if (word.charAt(level) == '.') {
-                for (TrieNode td : pCrawl.children) {
-                    if (td != null && search(word.substring(level + 1)))
+                for (WordDictionary wd : temp.children) {
+                    if (wd != null && wd.search(word.substring(level + 1)))
                         return true;
-
-                    return false;
                 }
-            }
-
-            if (pCrawl.children[index] == null) {
                 return false;
             }
 
-            pCrawl = pCrawl.children[index];
+            if (temp.children[index] == null) {
+                return false;
+            }
+
+            temp = temp.children[index];
         }
 
-        return (pCrawl.isEndOfWord);
+        return (temp != null && temp.isEndOfWord);
     }
 }
 
